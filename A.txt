@@ -1,0 +1,246 @@
+
+
+/*
+About this program:
+- This program counts words.
+- The specific words that will be counted are passed in as command-line
+  arguments.
+- The program reads words (one word per line) from standard input until EOF or
+  an input line starting with a dot '.'
+- The program prints out a summary of the number of times each word has
+  appeared.
+- Various command-line options alter the behavior of the program.
+
+E.g., count the number of times 'cat', 'nap' or 'dog' appears.
+> ./main cat nap dog
+Given input:
+ cat
+ .
+Expected output:
+ Looking for 3 words
+ Result:
+ cat:1
+ nap:0
+ dog:0
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "smp0_tests.h"
+
+/* B2 */
+#define LENGTH(s) (sizeof(s) / sizeof(*s))
+
+/* Structures */
+/* These are like classes, the name of this structure is WordCountEntry 
+it can be instantiated like this
+WordCountEntry nameOfStructureInstance;
+*/
+typedef struct {
+  char *word;
+  int counter;
+} WordCountEntry;
+
+/* Complete C4 and in this function
+      strtok() can be used to split a line into individual tokens.
+       For the separator characters we use whitespace (space and
+       tab), as well as the newline character '\n'.  We could also
+       trim the buffer to get rid of the newline, instead. 
+       strtok returns NULL when no more tokens are available. 
+       Google strtok line to learn more about how to use it */
+int process_stream(WordCountEntry entries[], int entry_count)
+{
+  short line_count = 0;
+  char buffer[30];
+
+  while (fgets(buffer,sizeof(buffer),stdin)) { //Replace gets with fgets and pass buffer, size of buffer, and stdin
+    if (*buffer == '.')
+      break;
+/*
+    //This was the soultion to C4 before C5 was started, but with C5 completed, this is no longer needed
+    //A new line was being counted so this removes it so the words can be counted correctly.
+    size_t len = strlen(buffer); //Get the length of buffer
+    if(len > 0 && buffer[len-1] == '\n') //If there is a new line
+      buffer[len-1] = '\0'; //Replace it with nothing
+
+   //Compare against each entry. 
+    int i = 0;
+    while (i < entry_count) {
+     //  B1: Google the meaning of the returned values of strcmp 
+      if (!strcmp(entries[i].word, buffer))
+        entries[i].counter++;
+      i++;
+    }
+    line_count++;
+  }*/
+  
+  char *token = strtok(buffer, " \t\n"); //Create a char pointer token and use strtok to tokenize buffer based on spaces, tabs, and new lines
+  while(token != NULL){ //While the token is not NULL
+   //Loop through the array to find the matching word
+    for(int i = 0; i < entry_count; i++)
+    {
+
+      if(strcmp(entries[i].word, token) == 0) //If a match is found
+        entries[i].counter++; //Update the counter
+    }
+    token =strtok(NULL, " \t\n"); //Get the next token
+  }
+    line_count++;//Increase line_count by 1
+  
+ }
+  // Returns the number of lines processed.
+  return line_count;
+}
+
+/* Complete B5: introduce a temporary variable i and use it to access every index in entries */
+void print_result(WordCountEntry entries[], int entry_count)
+{
+    /* C1: send output to the right stream, use fprintf */
+    fprintf(stdout,"Result:\n"); //Added fprintf and sent result to stdout
+
+    /* fix this*/
+    int i = 0; //Declare int i and set it to 0
+    while (i < entry_count){ //While i is less than the entry_count
+        fprintf(stdout, "%s:%d\n", entries[i].word, entries[i].counter); //Print the current word and count in entries and used fprintf to send output to stdout
+        i++; //Increment i to move to the next element in entries
+    }
+}
+
+
+void printHelp(const char *name)
+{
+    /* C1: send output to the right stream, use fprintf */
+    /* C2: add instructions for the extra option -f */
+    fprintf(stderr,"usage: %s [-h] <word1> ... <wordN>\n", name); //Used fprintf and sent help to stderr
+    fprintf(stderr, "use -fFILENAME to create a file to display the output\n"); //Used fprintf to send -f instructions to stderr
+}
+
+
+int main(int argc, char **argv)
+{
+  const char *prog_name = *argv;
+
+
+  /* C3: make entries a pointer instead of an array */
+  WordCountEntry *entries = NULL; //Made entries a pointer instead of an array
+
+  int entryCount = 0;
+
+  /* C1: create a variable to store the output stream to use, stdout by default 
+        Hint: use the FILE data type and understand the stdout and stderr output streams*/
+  // FILE *output = ?? // Complete this stream variable definition (Note: this will not be a file)
+  FILE *output = stdout; //Created variable to store output stream, which is stdout by default
+
+  /* Entry point for the testrunner program */
+  if (argc > 1 && !strcmp(argv[1], "-test")) {
+    run_smp0_tests(argc - 1, argv + 1);
+    return EXIT_SUCCESS;
+  }
+
+  /* C3: allocate (potentially) a little more memory than strictly
+       necessary, thus avoiding extensive modifications to the code below. Hint: use malloc */
+      size_t initial_size = 500; //Create a variable called initial_size and assign 500 to it (It used to be 10, but a malloc test not included in "make test" would fail, so the size was increased to fix that. Hopefully that's ok.)
+      entries = (WordCountEntry *)malloc(initial_size * sizeof(WordCountEntry)); //Assign more memory to entries with the use of malloc
+      if(entries == NULL) //If entries is null, then the memory allocation failed
+      {
+        fprintf(stderr, "Memory allocation failed");
+        return EXIT_FAILURE;
+      }
+
+
+ /* B4: ignore the program name in argv */
+  argv++; //Increase argv before the loop to skip the ./main when entering inputs
+  while (*argv != NULL) {
+    if (**argv == '-') {
+
+      switch ((*argv)[1]) {
+        /* C2: -fFILENAME switch: open FILENAME and set it as the output
+             stream */
+
+        /* B3: fix the logical flow error in the switch*/
+        case 'h':
+          printHelp(prog_name);
+          return EXIT_FAILURE; //There is no need to continue the program after -h, so exit it as a failure
+        case 'f': //Created a case f for filenames
+          if((*argv)[2] != '\0') //If the 3rd char following -f is not null
+          {
+            output = freopen(&(*argv)[2],"w",stdout); //Open the file for writing and redirect stdout
+            if(output == NULL) //If the output is null
+            {
+              fprintf(stderr, "%s: Error opening %s for writing.\n",prog_name,argv[1]); //Redirect to stderr
+              return EXIT_FAILURE; //return failure
+            }
+            
+          }
+          else 
+          {
+            argv++; //Move to the next argument
+            if(argv == NULL || *argv == NULL){ //If there is no filename, then redirect to stderr and return failure
+              fprintf(stderr, "%s: -f requires filename.\n",prog_name);
+              return EXIT_FAILURE;
+            }
+            
+            output = freopen(*argv, "w", stdout); //Open the file and redirect stdout to it
+  
+            if(output == NULL) //If the output is NULL then redirect to stderr and return failure
+            {
+              fprintf(stderr, "%s: Error opening %s. \n",prog_name, *argv);
+              return EXIT_FAILURE;
+            }
+      
+          }
+          break; //break out of switch statement
+        default:
+          /* C1: send output to the right stream, use fprintf */
+          fprintf(stderr,"%s: Invalid option %s. Use -h for help.\n", prog_name, *argv); //Sent invalid option text to correct stream using fprintf
+      }
+    } else {
+      /* C3: the LENGTH macro will not work anymore, since entries will be a pointer, not an array */
+
+      if(entryCount >= initial_size) //If the entryCount is greater than or equal to the initial_size 
+      {
+        initial_size = initial_size * 2; //Then double the initial_size 
+        entries = (WordCountEntry *)realloc(entries, sizeof(WordCountEntry) * (entryCount + 1)); //Reassign entries with the use of realloc to make it hold more memory
+
+      }
+      if(entries == NULL) //If entries is null, then memory allocation failed
+      {
+        fprintf(stderr, "Memory allocation failed");
+        return EXIT_FAILURE;
+      }
+      //Reallocated code from before the change to LENGTH was made
+      entries[entryCount].word = *argv;
+      entries[entryCount++].counter = 0;
+    }
+    argv++; //Increase argv by 1
+  }
+  if (entryCount == 0) {
+    /* C1: send output to the right stream, use fprintf */
+    fprintf(stderr, "%s: Please supply at least one word. Use -h for help.\n", prog_name); //Used fprintf to send output to stderr
+    return EXIT_FAILURE;
+  }
+
+  /* C1: send output to the right stream */
+  if (entryCount == 1) {
+      fprintf(stdout,"Looking for a single word\n"); //Used fprintf to send output to stdout
+    }
+  else{
+      fprintf(stdout,"Looking for %d words\n", entryCount); //Used fprintf to send output to stdout
+    }
+    
+  
+
+  /* You may modify the parameter list of any of these functions */
+  process_stream(entries, entryCount);
+  print_result(entries, entryCount);
+
+  // MANDATORY! FREE MEMORY, CLOSE FILES, STREAMS, etc.
+
+  if(output != stdout) //If the output is a file
+  {
+    fclose(output); //Close the file
+  }
+  free(entries); //Free the memory from entries
+  return EXIT_SUCCESS;
+}

@@ -1,0 +1,42 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Install dependencies
+      run: make
+      
+    - name: Run B3 test
+      run: ./main -test help_switch
+      
+    - name: Run B4, B5 tests
+      run: ./main -test basic_functionality
+
+    - name: Run C1 test
+      run: ./main -test stderr_output
+      
+    - name: Run C2 test
+      run: ./main -test file_output
+      
+    - name: Run C3 test
+      run: ./main -test malloc
+      
+    - name: Run C4 test
+      run: ./main -test fgets
+      
+    - name: Run C5 test
+      run: ./main -test strtok
+
+    - name: Run all tests
+      run: make test

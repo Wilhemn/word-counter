@@ -1,0 +1,8 @@
+Looking for 6 words
+Result:
+cat:0
+dog:1
+pie:0
+lay:0
+die:0
+said:0

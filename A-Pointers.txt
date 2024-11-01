@@ -1,0 +1,92 @@
+Pointers in C
+-------------
+
+1) Consider the following C program.
+#include <string.h>
+int main(int argc, char *argv[])
+{
+  char *temp;
+  strcpy(temp, argv[0]);
+  return 0;
+}
+
+Why is the above code incorrect (i.e., likely to crash)?
+
+There are two reasons why the code is likely to crash. 
+First, temp is a dangling pointer and that could cause problems, so setting it to Null would be a quick fix for that. 
+Secondly, temp does not have enough memory to hold a string, so using something like malloc(100) should allocate enough memory.
+
+2) Consider the following C program.
+#include <string.h>
+int main(int argc, char *argv[])
+{
+  char temp[9];
+  strcpy(temp, argv[0]);
+  return 0;
+}
+
+A buffer overflow occurs when the program name is 9 characters long
+(e.g., "12345.exe"). Why?
+
+The buffer overflow occurs because the final character needs to be \0. 
+\0 is needed since it is the null terminator so the program wouldn't be able to end without it.
+
+
+3) Consider the following C program.
+#include <string.h>
+int main(int argc, char *argv[])
+{
+  char *buffer = "Hello";
+  strcpy(buffer, "World");
+  return 0;
+}
+
+Why does this program crash?
+
+You cannot change buffer because it is a pointer location.
+
+4) Consider the following C snippet.
+void myfunc()
+{
+  char b[100];
+  char *buffer = &b[0];
+  strcpy(buffer, "World");
+}
+
+Is this correct?  What's a simpler expression for &b[0]?
+
+Yes the program is correct since an array b of 100 chars is made, then the first element in b is set to buffer, and then world is copied to buffer.
+A simpler expression for &b[0] is b, since b would refer to the first element just like &b[0] would. 
+
+5) Consider the following C program.
+#include <stdio.h>
+int main(int argc, char* argv[])
+{
+  printf("%s %s %s\n", *argv, (*(argv+1)) + 2, *(argv+2));
+  return 0;
+}
+
+If this code is executed using the following line, what will be the output?
+> ./program1 -n5 abc
+
+The output would be 5 abc. The (*(argv+1)) + 2 skips -n and *(argv+2) gets abc. 
+
+6) Consider the following C program.
+#include <stdio.h>
+#include <string.h>
+char *myfunc(char **argv)
+{
+  char buffer[100];
+  strcpy(buffer, "hello");
+  return buffer;
+}
+int main(int argc, char *argv[])
+{
+  char *s = myfunc(argv);
+  printf("%s\n", s);
+}
+
+What's wrong with this?
+
+Buffer will go out of scope after myfunc, so s is pointing to invalid memory. 
+This can be fixed by using malloc on buffer and by freeing s after it is used.

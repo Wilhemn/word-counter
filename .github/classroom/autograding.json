@@ -1,0 +1,44 @@
+{
+  "tests": [
+    {
+      "name": "All Tests",
+      "setup": "",
+      "run": "make test",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 40
+    },
+    {
+      "name": "strtok Test",
+      "setup": "make",
+      "run": "./main grade pass last",
+      "input": "Your grade will not be last \r\nif you read this you pass \r\nif you do not then your grade will not be good\r\nand you will be last \r\n.\r\n\r\n",
+      "output": "Result:\r\ngrade:2\r\npass:1\r\nlast:2",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 20
+    },
+    {
+      "name": "Basic Functionality",
+      "setup": "make",
+      "run": "./main cat dog",
+      "input": "cat \r\ndog \r\ndog \r\ncat \r\ncat \r\ndog \r\n. ",
+      "output": "Result:\r\ncat:3\r\ndog:3",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    },
+    {
+      "name": "malloc",
+      "setup": "make",
+      "run": "./main word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15",
+      "input": ".\r\n",
+      "output": "Result:\r\nword1:0\r\nword2:0\r\nword3:0\r\nword4:0\r\nword5:0\r\nword6:0\r\nword7:0\r\nword8:0\r\nword9:0\r\nword10:0\r\nword11:0\r\nword12:0\r\nword13:0\r\nword14:0\r\nword15:0",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 10
+    }
+  ]
+}

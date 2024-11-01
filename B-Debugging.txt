@@ -1,0 +1,46 @@
+Part Two: Fixing the Bugs
+-------------------------
+
+Understanding the code
+
+  1) Explain why this program uses the exclamation operator with the
+     strcmp() function.
+
+      By itself, strcmp() would compare two strings and return 0 if they are equal, 
+      a negative number based on the ascii values of the first different chars, 
+      or a positive number based on the ascii values of the first different chars.
+      When a '!' is used it acts as a NOT, so it inverts the output of strcmp().
+      So if the strings are equal, the '!' inverts the 0 obatined so that the if statement can receive a 1 and activate.
+
+  2) Explain why the 'LENGTH' macro returns the length of an array.
+     Would it work with a pointer to a dynamically allocated array? (Hint:
+     understand sizeof).
+
+      The 'LENGTH' marco returns the length of an array because it uses sizeof. 
+      It would not work with a pointer to a dynamically allocated array because sizeof doesn't provide the size of the
+      dynamically allocated array.
+      
+Bug hunting
+
+  3) Explain and fix the logical flow bug within the switch statement.
+     (What happens when the -h option is used?)
+
+      When the -h option is used, the terminal displays it's correct output: usage: ./main [-h] <word1> ... <wordN> 
+      However, it also displayed that -h is an invalid option and it still searched for the words.
+      This is because the rest of the while loop occur despite -h or an invalid option was used, so 
+      in each case return EXIT_FAILURE.
+
+  4) Explain and fix the argument parsing error. (Why is entrycount never
+     zero?)
+
+     Entrycount was never 0 because the the program counted ./main as an input, which incorrectly 
+     activated the if statement that would increase entrycount.
+     
+  5) Fix print_result() to print results correctly and in the same order
+     as the words were specified on the command line.  Explain your solution.
+
+     So before the change was made, the code would output ./main:0 because it was just 
+     pointing at the current word and counter. With the solution implemented, it prints the specific
+     word and count in entries in the order that they were inputted in. This was done by creating a counter called i
+     that would access the elements in entries based on its current position.
+ 
